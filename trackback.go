@@ -39,7 +39,7 @@ type trackbackImpl struct {
 	pids pidsInterface
 }
 
-func NewTrackback(cmd string) (Interface, error) {
+func NewTrackback(cmd string) (Tracker, error) {
 	return &trackbackImpl{
 		cmd: cmd,
 		exec: osExec{},
@@ -100,7 +100,7 @@ func (t *trackbackImpl) TrackConnections() (ProcessToSocket, error) {
 	return trackAllConnections(t, t.pids)
 }
 
-func trackAllConnections(t Interface, pidsFn pidsInterface) (ProcessToSocket, error) {
+func trackAllConnections(t Tracker, pidsFn pidsInterface) (ProcessToSocket, error) {
 	visitedNamespaces := map[string]bool{}
 	nsName, err := os.Readlink("/proc/self/ns/net")
 	if err != nil {

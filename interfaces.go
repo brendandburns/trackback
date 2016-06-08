@@ -13,6 +13,10 @@ type Address struct {
         Port uint32 `json:"port"`
 }
 
+func (a *Address) Equals(b *Address) bool {
+	return a.IP.Equal(b.IP) && a.Port == b.Port
+}
+
 // SocketInfo holds information about a particular open socket.
 type SocketInfo struct {
         LocalAddress  Address `json:"localAddress"`
@@ -47,8 +51,8 @@ func (p ProcessToSocket) UnmarshalJSON(data []byte) error {
         return nil
 }
 
-// Interface represents the trackback interface
-type Interface interface {
+// Tracker represents the interface for introspecting information from the system
+type Tracker interface {
 	// TrackConnections returns info for all connections on the machine, both in the host
 	// namespace as well as any other namespaces
 	TrackConnections() (ProcessToSocket, error)
@@ -60,4 +64,20 @@ type Interface interface {
 	// TrackConnectionsInCurrentNamespace returns connection info for the current namespace
 	TrackConnectionsInCurrentNamespace() (ProcessToSocket, error)
 }
+
+// LookupParameters represents the criteria for what matches for a lookup
+type LookupParameters struct {
+	// LocalAddress is the local address to match, nil matches all addresses.
+	LocalAddress  *Address
+	// RemoteAddress is the remote address to match, nil matches all addresses.
+	RemoteAddress *Address
+}
+
+// Lookup represents the interface for doing lookups
+type Lookup interface {
+	// FindProcesses gets the processes that holds a particular network connection.  If no matching
+	// process is found, nil is returned.
+	FindProcesses(params LookupParameters) ([]uint32, error)
+}
+
 

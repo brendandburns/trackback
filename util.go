@@ -1,19 +1,14 @@
 package trackback
 
-import (
-	"net"
-)
-
-func FindProcesses(pts ProcessToSocket, address net.IP, port uint32) []uint32 {
+func FindProcesses(pts ProcessToSocket, local *Address, remote *Address) []uint32 {
 	result := []uint32{}
 	for proc, sockets := range pts {
 		for ix := range sockets {
 			socket := &sockets[ix]
-			if socket.LocalAddress.IP.Equal(address) && socket.LocalAddress.Port == port {
-				result = append(result, proc)
+			if local != nil && !socket.LocalAddress.Equals(local) {
 				continue
 			}
-			if socket.RemoteAddress.IP.Equal(address) && socket.RemoteAddress.Port == port {
+			if remote == nil || socket.RemoteAddress.Equals(remote) {
 				result = append(result, proc)
 			}
 		}
